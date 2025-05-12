@@ -15,6 +15,29 @@ const categoryIcons = {
   Category.work: Icons.work,
 };
 
+const kCategoryColors = {
+  Category.food: Color.fromARGB(255, 255, 204, 0),
+  Category.travel: Color.fromARGB(255, 0, 204, 255),
+  Category.leisure: Color.fromARGB(255, 255, 0, 204),
+  Category.work: Color.fromARGB(255, 0, 255, 0),
+};
+
+const kDarkCategoryColors = {
+  Category.food: Color.fromARGB(255, 151, 91, 0),
+  Category.travel: Color.fromARGB(255, 0, 49, 82),
+  Category.leisure: Color.fromARGB(255, 117, 0, 70),
+  Category.work: Color.fromARGB(255, 0, 90, 0),
+};
+
+Map<Category, Color> getCategoryColors(BuildContext context) {
+  final isDarkMode = MediaQuery.of(context).platformBrightness == Brightness.dark;
+  return getCategoryColorsByMode(isDarkMode);
+}
+
+Map<Category, Color> getCategoryColorsByMode(bool isDarkMode) {
+  return isDarkMode ? kDarkCategoryColors : kCategoryColors;
+}
+
 class Expense implements Comparable<Expense> {
   final String id;
   final String title;
@@ -43,7 +66,7 @@ class Expense implements Comparable<Expense> {
     final dateComparison = date.compareTo(other.date);
 
     if (dateComparison != 0) {
-      return dateComparison;
+      return dateComparison * -1; // Sort by date descending
     }
     return title.compareTo(other.title);
   }

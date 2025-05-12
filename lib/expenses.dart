@@ -60,7 +60,7 @@ class _ExpensesState extends State<Expenses> {
     }
   }
 
-  void _openAddExpnenseOverlay() {
+  void _openAddExpenseOverlay() {
     showModalBottomSheet(
       isScrollControlled: true,
       context: context,
@@ -104,7 +104,7 @@ class _ExpensesState extends State<Expenses> {
         title: Text('Flutter ExpenseTracker'),
         actions: [
           IconButton(
-            onPressed: _openAddExpnenseOverlay,
+            onPressed: _openAddExpenseOverlay,
             icon: const Icon(Icons.add),
           ),
         ],

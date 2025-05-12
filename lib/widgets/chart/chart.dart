@@ -63,6 +63,7 @@ class Chart extends StatelessWidget {
                     fill: bucket.totalExpenses == 0
                         ? 0
                         : bucket.totalExpenses / maxTotalExpense,
+                    color: getCategoryColorsByMode(isDarkMode)[bucket.category]!,
                   )
               ],
             ),

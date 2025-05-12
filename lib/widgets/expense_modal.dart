@@ -5,10 +5,7 @@ class ExpenseModal extends StatefulWidget {
   ExpenseModal(this.expanse, {super.key, required this.onAddUpdateExpense});
   Expense? expanse;
 
-  ExpenseModal.forNewExpense({
-    super.key,
-    required this.onAddUpdateExpense,
-  });
+  ExpenseModal.forNewExpense({super.key, required this.onAddUpdateExpense});
 
   final void Function(Expense expanse) onAddUpdateExpense;
 
@@ -27,10 +24,14 @@ class _ExpenseModalState extends State<ExpenseModal> {
   DateTime? _selectedDate;
   Category _selectedCategory = Category.food;
 
+  bool _isTitleInvalid = false;
+  bool _isAmountInvalid = false;
+  bool _isSelectedDateInvalid = false;
+
   @override
   void initState() {
     super.initState();
-    if(widget.expanse == null) {
+    if (widget.expanse == null) {
       return;
     }
     _selectedCategory = widget.expanse!.category;
@@ -40,32 +41,30 @@ class _ExpenseModalState extends State<ExpenseModal> {
   }
 
   void _submitData() {
-    final enteredTitle = _titleController.text;
+    final enteredTitle = _titleController.text.trim();
     final enteredAmount = double.tryParse(_amountController.text);
+    bool isTitleInvalid = enteredTitle.isEmpty;
+    bool isAmountInvalid = enteredAmount == null || enteredAmount <= 0;
+    bool isSelectedDateInvalid = _selectedDate == null;
 
-    if (enteredTitle.isEmpty ||
-        enteredAmount == null ||
-        enteredAmount <= 0 ||
-        _selectedDate == null) {
+    if (isTitleInvalid || isAmountInvalid || isSelectedDateInvalid) {
+      setState(() {
+        _isTitleInvalid = isTitleInvalid;
+        _isAmountInvalid = isAmountInvalid;
+        _isSelectedDateInvalid = isSelectedDateInvalid;
+      });
+
       return;
     }
-    
-    var outputExpense;
-    if (widget.expanse == null) {
-      outputExpense = Expense(
-        title: enteredTitle,
-        amount: enteredAmount,
-        date: _selectedDate!,
-        category: _selectedCategory,
-      );
-    } else {
-    outputExpense = Expense(
-      id: widget.expanse!.id,
+
+    final outputExpense = Expense(
+      id: widget.expanse?.id,
       title: enteredTitle,
       amount: enteredAmount,
       date: _selectedDate!,
       category: _selectedCategory,
-    );}
+    );
+
     widget.onAddUpdateExpense(outputExpense);
     Navigator.pop(context);
   }
@@ -143,7 +142,13 @@ class _ExpenseModalState extends State<ExpenseModal> {
               focusNode: _titleFocus,
               textInputAction: TextInputAction.next,
               maxLength: 50,
-              decoration: const InputDecoration(label: Text('Title')),
+              decoration: InputDecoration(
+                label: Text('Title'),
+                errorText: _isTitleInvalid ? 'Title is required' : null,
+              ),
+              style: Theme.of(context).textTheme.labelLarge!.copyWith(
+                color: Theme.of(context).colorScheme.onSecondaryContainer,
+              ),
               controller: _titleController,
               onSubmitted: (_) => switchFocus(),
             ),
@@ -153,9 +158,13 @@ class _ExpenseModalState extends State<ExpenseModal> {
                   child: TextField(
                     focusNode: _amountFocus,
                     textInputAction: TextInputAction.next,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       prefixText: '\$ ',
                       label: Text('Amount'),
+                      errorText: _isAmountInvalid ? 'Amount is required' : null,
+                    ),
+                    style: Theme.of(context).textTheme.labelLarge!.copyWith(
+                      color: Theme.of(context).colorScheme.onSecondaryContainer,
                     ),
                     keyboardType: TextInputType.number,
                     controller: _amountController,
@@ -172,6 +181,14 @@ class _ExpenseModalState extends State<ExpenseModal> {
                         _selectedDate == null
                             ? 'Select Date'
                             : formatter.format(_selectedDate!),
+                        style: Theme.of(context).textTheme.labelLarge!.copyWith(
+                          color:
+                              _isSelectedDateInvalid
+                                  ? Theme.of(context).colorScheme.error
+                                  : Theme.of(
+                                    context,
+                                  ).colorScheme.onSecondaryContainer,
+                        ),
                       ),
                       IconButton(
                         onPressed: presentDatePicker,
@@ -190,11 +207,30 @@ class _ExpenseModalState extends State<ExpenseModal> {
                           .map(
                             (category) => DropdownMenuItem<Category>(
                               value: category,
-                              child: Text(category.name.toUpperCase()),
+                              child: Text(
+                                category.name.toUpperCase(),
+                                style: Theme.of(
+                                  context,
+                                ).textTheme.labelLarge!.copyWith(
+                                  color:
+                                      _selectedCategory == category
+                                          ? Theme.of(
+                                            context,
+                                          ).colorScheme.onSecondaryContainer
+                                          : Theme.of(
+                                            context,
+                                          ).colorScheme.onPrimaryContainer,
+                                ),
+                              ),
                             ),
                           )
                           .toList(),
                   value: _selectedCategory,
+                  dropdownColor:
+                      Theme.of(context).colorScheme.secondaryContainer,
+                  style: Theme.of(context).textTheme.labelLarge!.copyWith(
+                    color: Theme.of(context).colorScheme.onPrimaryContainer,
+                  ),
                   onChanged: (category) {
                     if (category == null) {
                       return;

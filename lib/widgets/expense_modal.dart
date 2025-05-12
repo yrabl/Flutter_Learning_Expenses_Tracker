@@ -1,17 +1,22 @@
 import 'package:expense_tracker/models/expense.dart';
 import 'package:flutter/material.dart';
 
-class EditExpense extends StatefulWidget {
-  const EditExpense(this.expanse, {super.key, required this.onUpdateExpense});
-  final Expense expanse;
+class ExpenseModal extends StatefulWidget {
+  ExpenseModal(this.expanse, {super.key, required this.onAddUpdateExpense});
+  Expense? expanse;
 
-  final void Function(Expense expanse) onUpdateExpense;
+  ExpenseModal.forNewExpense({
+    super.key,
+    required this.onAddUpdateExpense,
+  });
+
+  final void Function(Expense expanse) onAddUpdateExpense;
 
   @override
-  State<EditExpense> createState() => _EditExpenseState();
+  State<ExpenseModal> createState() => _ExpenseModalState();
 }
 
-class _EditExpenseState extends State<EditExpense> {
+class _ExpenseModalState extends State<ExpenseModal> {
   final _titleFocus = FocusNode();
   final _amountFocus = FocusNode();
   final _selectedCategoryFocus = FocusNode();
@@ -25,10 +30,13 @@ class _EditExpenseState extends State<EditExpense> {
   @override
   void initState() {
     super.initState();
-    _selectedCategory = widget.expanse.category;
-    _titleController.text = widget.expanse.title;
-    _amountController.text = widget.expanse.amount.toString();
-    _selectedDate = widget.expanse.date;
+    if(widget.expanse == null) {
+      return;
+    }
+    _selectedCategory = widget.expanse!.category;
+    _titleController.text = widget.expanse!.title;
+    _amountController.text = widget.expanse!.amount.toString();
+    _selectedDate = widget.expanse!.date;
   }
 
   void _submitData() {
@@ -42,14 +50,23 @@ class _EditExpenseState extends State<EditExpense> {
       return;
     }
     
-    final updatedExpense = Expense(
-      id: widget.expanse.id,
+    var outputExpense;
+    if (widget.expanse == null) {
+      outputExpense = Expense(
+        title: enteredTitle,
+        amount: enteredAmount,
+        date: _selectedDate!,
+        category: _selectedCategory,
+      );
+    } else {
+    outputExpense = Expense(
+      id: widget.expanse!.id,
       title: enteredTitle,
       amount: enteredAmount,
       date: _selectedDate!,
       category: _selectedCategory,
-    );
-    widget.onUpdateExpense(updatedExpense);
+    );}
+    widget.onAddUpdateExpense(outputExpense);
     Navigator.pop(context);
   }
 
@@ -153,7 +170,7 @@ class _EditExpenseState extends State<EditExpense> {
                     children: [
                       Text(
                         _selectedDate == null
-                            ? 'Selecte Date'
+                            ? 'Select Date'
                             : formatter.format(_selectedDate!),
                       ),
                       IconButton(

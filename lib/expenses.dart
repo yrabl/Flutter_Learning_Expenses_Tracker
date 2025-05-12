@@ -1,7 +1,6 @@
 import 'package:expense_tracker/models/expense.dart';
 import 'package:expense_tracker/widgets/chart/chart.dart';
-import 'package:expense_tracker/widgets/edit_expense.dart';
-import 'package:expense_tracker/widgets/new_expense.dart';
+import 'package:expense_tracker/widgets/expense_modal.dart';
 import 'package:flutter/material.dart';
 import 'package:expense_tracker/widgets/expenses_list/expenses_list.dart';
 
@@ -15,20 +14,7 @@ class Expenses extends StatefulWidget {
 }
 
 class _ExpensesState extends State<Expenses> {
-  final List<Expense> _registeredExpenses = [
-    Expense(
-      title: 'Flutter Course',
-      amount: 19.99,
-      date: DateTime.now(),
-      category: Category.work,
-    ),
-    Expense(
-      title: 'Cinema',
-      amount: 45.00,
-      date: DateTime.now(),
-      category: Category.leisure,
-    ),
-  ];
+  final List<Expense> _registeredExpenses = [];
 
   void _removeRow(Expense expense) {
     final expenseIndex = _registeredExpenses.indexOf(expense);
@@ -58,7 +44,7 @@ class _ExpensesState extends State<Expenses> {
   void _onAddExpense(Expense expense) {
     setState(() {
       _registeredExpenses.add(expense);
-      _registeredExpenses.sort((a, b) => a.date.compareTo(b.date));
+      _registeredExpenses.sort((a, b) => a.compareTo(b));
     });
   }
 
@@ -69,6 +55,7 @@ class _ExpensesState extends State<Expenses> {
     if (index >= 0) {
       setState(() {
         _registeredExpenses[index] = expense;
+        _registeredExpenses.sort((a, b) => a.compareTo(b));
       });
     }
   }
@@ -77,7 +64,7 @@ class _ExpensesState extends State<Expenses> {
     showModalBottomSheet(
       isScrollControlled: true,
       context: context,
-      builder: (ctx) => NewExpense(onAddExpense: _onAddExpense),
+      builder: (ctx) => ExpenseModal.forNewExpense(onAddUpdateExpense: _onAddExpense),
     );
   }
 
@@ -90,9 +77,9 @@ class _ExpensesState extends State<Expenses> {
         isScrollControlled: true,
         context: context,
         builder:
-            (ctx) => EditExpense(
+            (ctx) => ExpenseModal(
               _registeredExpenses[index],
-              onUpdateExpense: _onUpdateExpense,
+              onAddUpdateExpense: _onUpdateExpense,
             ),
       );
     }

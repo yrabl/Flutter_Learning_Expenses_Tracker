@@ -15,7 +15,7 @@ const categoryIcons = {
   Category.work: Icons.work,
 };
 
-class Expense {
+class Expense implements Comparable<Expense> {
   final String id;
   final String title;
   final double amount;
@@ -36,6 +36,16 @@ class Expense {
 
   IconData get categoryIcon {
     return categoryIcons[category] ?? Icons.error;
+  }
+
+  @override
+  int compareTo(Expense other) {
+    final dateComparison = date.compareTo(other.date);
+
+    if (dateComparison != 0) {
+      return dateComparison;
+    }
+    return title.compareTo(other.title);
   }
 }
 
